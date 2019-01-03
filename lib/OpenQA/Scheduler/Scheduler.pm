@@ -111,6 +111,10 @@ sub matching_workers {
 
 sub to_be_scheduled_recurse {
     my ($j, $scheduled, $taken) = @_;
+    # let's not flood the logs with "Use of uninitialized value
+    # in hash element" errors
+    return unless defined $j;
+    return unless defined $j->{id};
 
     return if $taken->{$j->{id}};
     # if we were called with undef, this is a sign that
@@ -118,6 +122,7 @@ sub to_be_scheduled_recurse {
     # take that as mark but return
     $taken->{$j->{id}} = $j;
 
+    return unless defined $j->{cluster_jobs};
     my $ci = $j->{cluster_jobs}->{$j->{id}};
     return unless $ci;
     for my $s (@{$ci->{parallel_children}}) {
@@ -297,9 +302,9 @@ sub schedule {
         next if $checked_jobs{$j->{id}};
         next unless @{$j->{matching_workers}};
         my $tobescheduled = to_be_scheduled($j, scheduled_jobs);
+        next unless defined $tobescheduled && $tobescheduled;
         log_debug "need to schedule " . scalar(@$tobescheduled) . " jobs for $j->{id}($j->{priority})";
         next if defined $allocated_jobs->{$j->{id}};
-        next unless $tobescheduled;
         my %taken;
         for my $sub_job (sort { $a->{id} <=> $b->{id} } @$tobescheduled) {
             $checked_jobs{$sub_job->{id}} = 1;
