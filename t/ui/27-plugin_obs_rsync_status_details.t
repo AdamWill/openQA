@@ -23,8 +23,8 @@ use OpenQA::Test::TimeLimit '60';
 use OpenQA::SeleniumTest;
 use OpenQA::Test::ObsRsync 'setup_obs_rsync_test';
 
-my ($t, $tempdir) = setup_obs_rsync_test(fixtures_glob => '01-jobs.pl 03-users.pl');
 plan skip_all => $OpenQA::SeleniumTest::drivermissing unless my $driver = call_driver({with_gru => 0});
+my ($t, $tempdir) = setup_obs_rsync_test(fixtures_glob => '01-jobs.pl 03-users.pl');
 $driver->find_element_by_class('navbar-brand')->click;
 $driver->find_element_by_link_text('Login')->click;
 
